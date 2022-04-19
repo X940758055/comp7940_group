@@ -7,6 +7,7 @@ import logging
 import uuid
 import functions as func
 import dbOperation as dbop
+import cos as coscli
 
 
 
@@ -17,6 +18,12 @@ def main():
     # connection
     config = configparser.ConfigParser()
     config.read('config.ini')
+    Region = (config['COS']['REGION'])
+    bucket = (config['COS']['BUCKET'])
+    secret_id = (config['COS']['SECRETID'])
+    secret_key = (config['COS']['SECRETKEY'])
+    global cos
+    cos = coscli.tencent_cos(Region, bucket, secret_id, secret_key)
     updater = Updater(token=(config['TELEGRAM']['ACCESS_TOKEN']), use_context=True)
     global bot
     bot = Bot(config['TELEGRAM']['ACCESS_TOKEN'])
@@ -103,7 +110,7 @@ def hikingHandler(update: Update, context: CallbackContext) -> None:
                                                                review["comment_description"]))
 
         elif operation == "show_photo":
-            picts = func.show_hiking_photo(db, place)
+            picts = func.show_hiking_photo(db, cos, place)
             sendGraphs(update, picts)
         else:
             pass
@@ -128,7 +135,7 @@ def cookaryHandler(update: Update, context: CallbackContext) -> None:
             update.message.reply_text('please upload video')
 
         elif operation == "show_video":
-            videos = func.show_cookary(db, name)
+            videos = func.show_cookary(db, cos, name)
             sendVideo(update, videos)
         else:
             pass
@@ -139,13 +146,14 @@ def cookaryHandler(update: Update, context: CallbackContext) -> None:
 
 
 def sendGraphs(update, picts):
-    try: 
+    try:
         global bot
         chat_id = update.effective_chat.id
         if len(picts) == 0:
             update.message.reply_text('Sorry, no record about this.')
         for pict in picts:
-            bot.send_photo(chat_id, photo=open(pict, 'rb'))
+            # bot.send_photo(chat_id, photo=open(pict, 'rb'))
+            bot.send_photo(chat_id, pict)
     except (IndexError, ValueError):
         update.message.reply_text('Internal server error')
 
@@ -154,12 +162,14 @@ def photoHandler(update: Update, context: CallbackContext):
     try:
         global uploadfile
         global bot
+        global cos
         user_name = update.effective_user.full_name
         key = func.generate_upload_key("graph", user_name)
         if uploadfile.get(key, None) is not None:
             place = str(uploadfile[key])
             file = bot.getFile(update.message.photo.pop())
-            path = func.download_photo(file.file_path, str(uuid.uuid4()))
+            # path = func.download_photo(file.file_path, str(uuid.uuid4()))
+            path = func.save_file_on_cos(file.file_path, cos, str(uuid.uuid4()))
             func.write_hiking_photo(db, place, path, user_name)
             update.message.reply_text('saved')
             del uploadfile[key]
@@ -173,13 +183,15 @@ def videoHandler(update: Update, context: CallbackContext):
 
         global uploadfile
         global bot
+        global cos
         user_name = update.effective_user.full_name
         key = func.generate_upload_key("video", user_name)
         print("key:", key)
         if uploadfile.get(key, None) is not None:
             name = str(uploadfile[key])
             file = bot.getFile(update.message.video.file_id)
-            path = func.download_video(file.file_path, str(uuid.uuid4()))
+            # path = func.download_video(file.file_path, str(uuid.uuid4()))
+            path = func.save_file_on_cos(file.file_path, cos, str(uuid.uuid4()))
             func.write_cookary(db, name, path, user_name)
             update.message.reply_text('saved')
             del uploadfile[key]
@@ -194,7 +206,8 @@ def sendVideo(update, videos):
         if len(videos) == 0:
             update.message.reply_text('Sorry, no record about this.')
         for video in videos:
-            bot.send_video(chat_id, video=open(video, 'rb'))
+            # bot.send_video(chat_id, video=open(video, 'rb'))
+            bot.send_video(chat_id, video)
         print("finish")
     except (IndexError, ValueError):
         update.message.reply_text('Internal server error')
