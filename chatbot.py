@@ -131,7 +131,6 @@ def cookaryHandler(update: Update, context: CallbackContext) -> None:
             global uploadfile
             key = func.generate_upload_key("video", user_name)
             uploadfile[key] = name
-            print("key1:", key)
             update.message.reply_text('please upload video')
 
         elif operation == "show_video":
@@ -186,7 +185,6 @@ def videoHandler(update: Update, context: CallbackContext):
         global cos
         user_name = update.effective_user.full_name
         key = func.generate_upload_key("video", user_name)
-        print("key:", key)
         if uploadfile.get(key, None) is not None:
             name = str(uploadfile[key])
             file = bot.getFile(update.message.video.file_id)
@@ -208,7 +206,6 @@ def sendVideo(update, videos):
         for video in videos:
             # bot.send_video(chat_id, video=open(video, 'rb'))
             bot.send_video(chat_id, video)
-        print("finish")
     except (IndexError, ValueError):
         update.message.reply_text('Internal server error')
 

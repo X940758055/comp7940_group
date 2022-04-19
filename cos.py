@@ -24,14 +24,3 @@ class tencent_cos():
 
 
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-Region = (config['COS']['REGION'])
-bucket = (config['COS']['BUCKET'])
-secret_id = (config['COS']['SECRETID'])
-secret_key = (config['COS']['SECRETKEY'])
-cos = tencent_cos(Region, bucket, secret_id, secret_key)
-res = cos.uploadFile("./image/first.png", "first.png")
-res = cos.downloadFile("first.png")
-
-
