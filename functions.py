@@ -2,7 +2,7 @@ import time
 import urllib.request
 import os
 import ssl
-import firebaseOperation as dbop
+import dbOperation as dbop
 
 def download_from_url(url, path):
     ssl._create_default_https_context = ssl._create_unverified_context
