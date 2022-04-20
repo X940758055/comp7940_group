@@ -1,7 +1,7 @@
 from telegram import Update, Bot
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
-import configparser
+import os
 import logging
 
 import uuid
@@ -14,20 +14,18 @@ import cos as coscli
 def main():
 
     # connection
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    Region = (config['COS']['REGION'])
-    bucket = (config['COS']['BUCKET'])
-    secret_id = (config['COS']['SECRETID'])
-    secret_key = (config['COS']['SECRETKEY'])
+    os.environ['ACCESS_TOKEN']
+    Region = (os.environ['COS_REGION'])
+    bucket = (os.environ['COS_BUCKET'])
+    secret_id = (os.environ['COS_SECRETID'])
+    secret_key = (os.environ['COS_SECRETKEY'])
     global cos
     cos = coscli.tencent_cos(Region, bucket, secret_id, secret_key)
-    updater = Updater(token=(config['TELEGRAM']['ACCESS_TOKEN']), use_context=True)
+    updater = Updater(token=(os.environ['TELEGRAM_ACCESS_TOKEN']), use_context=True)
     global bot
-    bot = Bot(config['TELEGRAM']['ACCESS_TOKEN'])
+    bot = Bot(os.environ['TELEGRAM_ACCESS_TOKEN'])
     global db
-    print("db path:", config['FIREBASE']['SDK'])
-    db = dbop.init(config['FIREBASE']['SDK'])
+    db = dbop.init(os.environ['FIREBASE_SDK'])
     # db = dbop.init(host=(config['MYSQL']['HOST']),user=(config['MYSQL']['USER']), password=(config['MYSQL']['PASSWORD']), port=(config['MYSQL']['PORT']), database=(config['MYSQL']['DATABASE']))
     global uploadfile
     uploadfile = {}
