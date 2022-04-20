@@ -6,12 +6,10 @@ import logging
 
 import uuid
 import functions as func
-import dbOperation as dbop
+import firebaseOperation as dbop
 import cos as coscli
 
 
-
-global redis1
 
 def main():
 
@@ -28,7 +26,9 @@ def main():
     global bot
     bot = Bot(config['TELEGRAM']['ACCESS_TOKEN'])
     global db
-    db = dbop.init(host=(config['MYSQL']['HOST']),user=(config['MYSQL']['USER']), password=(config['MYSQL']['PASSWORD']), port=(config['MYSQL']['PORT']), database=(config['MYSQL']['DATABASE']))
+    print("db path:", config['FIREBASE']['SDK'])
+    db = dbop.init(config['FIREBASE']['SDK'])
+    # db = dbop.init(host=(config['MYSQL']['HOST']),user=(config['MYSQL']['USER']), password=(config['MYSQL']['PASSWORD']), port=(config['MYSQL']['PORT']), database=(config['MYSQL']['DATABASE']))
     global uploadfile
     uploadfile = {}
 
