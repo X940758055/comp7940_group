@@ -77,7 +77,7 @@ def write_cookary(db, c_name, path, username):
     })
 
 def show_cookary(db, c_name):
-    results = db.collection(HPcol).where("c_name", "==", c_name).stream()
+    results = db.collection(COcol).where("c_name", "==", c_name).stream()
     res = []
     for row in results:
         res.append(row.to_dict())

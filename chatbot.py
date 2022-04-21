@@ -14,7 +14,6 @@ import cos as coscli
 def main():
 
     # connection
-    os.environ['ACCESS_TOKEN']
     Region = (os.environ['COS_REGION'])
     bucket = (os.environ['COS_BUCKET'])
     secret_id = (os.environ['COS_SECRETID'])
